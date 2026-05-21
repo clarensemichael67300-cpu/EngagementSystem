@@ -2,54 +2,75 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
+    <title>Member Portal</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <style>
         body { font-family: 'Segoe UI', sans-serif; background: #f0f2f5; padding: 40px; }
-        .container { max-width: 500px; margin: auto; background: white; padding: 30px; border-radius: 15px; box-shadow: 0 10px 25px rgba(0,0,0,0.1); text-align: center; }
+        .container { max-width: 400px; margin: auto; background: white; padding: 30px; border-radius: 15px; box-shadow: 0 10px 25px rgba(0,0,0,0.1); }
         .hidden { display: none; }
-        input { width: 100%; padding: 12px; margin: 10px 0; border: 1px solid #ddd; border-radius: 8px; box-sizing: border-box; }
-        button { width: 100%; padding: 12px; background: #3498db; color: white; border: none; border-radius: 8px; cursor: pointer; }
+        h1 { color: #2c3e50; text-align: center; }
+        input { width: 100%; padding: 12px; margin: 8px 0; border: 1px solid #ddd; border-radius: 8px; box-sizing: border-box; }
+        button { width: 100%; padding: 12px; background: #3498db; color: white; border: none; border-radius: 8px; cursor: pointer; margin-top: 10px; }
+        .link { color: #3498db; cursor: pointer; text-align: center; display: block; margin-top: 15px; font-size: 0.9em; }
     </style>
 </head>
 <body>
 
     <div id="login-screen" class="container">
-        <h1><i class="fas fa-lock"></i> Member Login</h1>
-        <input type="text" id="username" placeholder="Enter Member ID">
+        <h1><i class="fas fa-lock"></i> Login</h1>
+        <input type="text" id="l-user" placeholder="Username">
+        <input type="password" id="l-pass" placeholder="Password">
         <button onclick="login()">Enter Portal</button>
+        <span class="link" onclick="toggleViews()">Don't have an account? Sign Up</span>
+    </div>
+
+    <div id="signup-screen" class="container hidden">
+        <h1><i class="fas fa-user-plus"></i> Create Account</h1>
+        <input type="text" id="s-name" placeholder="Full Name">
+        <input type="number" id="s-age" placeholder="Age">
+        <input type="text" id="s-id" placeholder="ID Number">
+        <input type="text" id="s-course" placeholder="Course">
+        <input type="text" id="s-year" placeholder="Year Level">
+        <input type="password" id="s-pass" placeholder="Password">
+        <button onclick="signUp()">Register</button>
+        <span class="link" onclick="toggleViews()">Already have an account? Login</span>
     </div>
 
     <div id="dashboard" class="container hidden">
-        <h1><i class="fas fa-book-reader"></i> Welcome, <span id="user-display"></span></h1>
-        <input type="text" id="search" placeholder="🔍 Search books..." onkeyup="render()">
-        <ul id="book-list" style="list-style:none; padding:0;"></ul>
+        <h1><i class="fas fa-book-reader"></i> Welcome</h1>
+        <p id="welcome-msg"></p>
+        <button onclick="location.reload()" style="background:#e74c3c;">Log Out</button>
     </div>
 
     <script>
-        let allBooks = [];
-        
+        function toggleViews() {
+            document.getElementById('login-screen').classList.toggle('hidden');
+            document.getElementById('signup-screen').classList.toggle('hidden');
+        }
+
         function login() {
-            const user = document.getElementById('username').value;
+            const user = document.getElementById('l-user').value;
             if(user) {
-                document.getElementById('user-display').innerText = user;
+                document.getElementById('welcome-msg').innerText = "Logged in as: " + user;
                 document.getElementById('login-screen').classList.add('hidden');
                 document.getElementById('dashboard').classList.remove('hidden');
-                fetchBooks();
             }
         }
 
-        async function fetchBooks() {
-            const res = await fetch('http://localhost:3000/api/books');
-            allBooks = await res.json();
-            render();
-        }
-
-        function render() {
-            const query = document.getElementById('search').value.toLowerCase();
-            const list = document.getElementById('book-list');
-            list.innerHTML = allBooks
-                .filter(b => b.title.toLowerCase().includes(query))
-                .map(b => `<li style="padding:10px; border-bottom:1px solid #eee;">${b.title} - <b>${b.status}</b></li>`).join('');
+        function signUp() {
+            const userData = {
+                name: document.getElementById('s-name').value,
+                age: document.getElementById('s-age').value,
+                id: document.getElementById('s-id').value,
+                course: document.getElementById('s-course').value,
+                year: document.getElementById('s-year').value
+            };
+            if(userData.name && userData.id) {
+                alert("Account created for " + userData.name + "!");
+                toggleViews();
+            } else {
+                alert("Please fill in required fields.");
+            }
         }
     </script>
 </body>
