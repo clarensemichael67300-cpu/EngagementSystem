@@ -11,12 +11,9 @@
         input, select { width: 100%; padding: 12px; margin: 8px 0; border: 1px solid #ddd; border-radius: 8px; box-sizing: border-box; }
         button { width: 100%; padding: 12px; background: #3498db; color: white; border: none; border-radius: 8px; cursor: pointer; font-weight: bold; margin-top: 15px; }
         button:hover { background: #2980b9; }
-        
         .hidden { display: none; }
         .link-text { text-align: center; margin-top: 15px; font-size: 14px; color: #7f8c8d; }
         .link-text a { color: #3498db; text-decoration: none; cursor: pointer; font-weight: bold; }
-        
-        /* Dashboard Styling */
         .book-item { padding: 15px; border-bottom: 1px solid #eee; display: flex; justify-content: space-between; align-items: center; }
         .search-bar { border: 2px solid #3498db; }
         .nav-icons { position: absolute; top: 20px; right: 20px; display: flex; gap: 15px; }
@@ -26,29 +23,29 @@
 
     <div id="login-view" class="container">
         <h1>Engagement Portal</h1>
-        <input type="text" placeholder="Username">
-        <input type="password" placeholder="Password">
-        <button onclick="toggleView('dashboard-view')">Login</button>
-        <div class="link-text">
-            Don't have an account? <a onclick="toggleView('signup-view')">Sign Up</a>
-        </div>
+        <input type="text" id="login-user" placeholder="Username">
+        <input type="password" id="login-pass" placeholder="Password">
+        <button onclick="login()">Login</button>
+        <div class="link-text">Don't have an account? <a onclick="toggleView('signup-view')">Sign Up</a></div>
     </div>
 
     <div id="signup-view" class="container hidden">
         <h1>Create Account</h1>
         <input type="text" placeholder="Full Name">
         <input type="text" placeholder="ID Number">
+        <input type="text" placeholder="Desired Username">
+        <input type="password" placeholder="Create Password">
         <select><option disabled selected>Select Course</option><option>BSIT (PROGRAMMING)</option><option>BSINDU (ELECTRICAL)</option><option>BSINDU (AUTOMOTIVE)</option><option>BSINDU (ELECTRONICS)</option><option>BTLED</option><option>BSED</option><option>BSMA</option><option>BSA</option></select>
         <select><option disabled selected>Year Level</option><option>1st Year</option><option>2nd Year</option><option>3rd Year</option><option>4th Year</option></select>
         <select><option disabled selected>Section</option><option>Section A</option><option>Section B</option><option>Section C</option><option>Section D</option><option>Section E</option></select>
-        <button onclick="alert('Registered!'); toggleView('login-view');">Register Now</button>
+        <button onclick="alert('Account Created Successfully!'); toggleView('login-view');">Register Now</button>
         <div class="link-text"><a onclick="toggleView('login-view')">Back to Login</a></div>
     </div>
 
     <div id="dashboard-view" class="container hidden" style="max-width: 700px;">
         <div class="nav-icons">
             <i class="fas fa-cog" style="cursor: pointer; color: #3498db; font-size: 20px;" onclick="toggleView('settings-view')" title="Account Settings"></i>
-            <i class="fas fa-sign-out-alt" style="cursor: pointer; color: #e74c3c; font-size: 20px;" onclick="location.reload()" title="Logout"></i>
+            <i class="fas fa-sign-out-alt" style="cursor: pointer; color: #e74c3c; font-size: 20px;" onclick="handleLogout()" title="Logout"></i>
         </div>
         <h1>Library Catalog</h1>
         <input type="text" id="search-bar" class="search-bar" placeholder="Search by title or author..." onkeyup="filterBooks()">
@@ -59,6 +56,8 @@
         <h1>Account Settings</h1>
         <input type="text" id="edit-name" placeholder="New Full Name">
         <input type="text" id="edit-id" placeholder="New ID Number">
+        <select id="edit-year"><option disabled selected>Select Year Level</option><option>1st Year</option><option>2nd Year</option><option>3rd Year</option><option>4th Year</option></select>
+        <select id="edit-section"><option disabled selected>Select Section</option><option>Section A</option><option>Section B</option><option>Section C</option><option>Section D</option><option>Section E</option></select>
         <input type="password" id="confirm-pass" placeholder="Confirm Password">
         <button onclick="saveSettings()">Save Changes</button>
         <button style="background:#7f8c8d;" onclick="toggleView('dashboard-view')">Back</button>
@@ -67,10 +66,32 @@
     <script>
         let allBooks = [];
 
+        (function checkLogin() {
+            if (localStorage.getItem('isLoggedIn') === 'true') {
+                document.getElementById('login-view').classList.add('hidden');
+                document.getElementById('dashboard-view').classList.remove('hidden');
+                loadAvailableBooks();
+            }
+        })();
+
         function toggleView(viewId) {
             document.querySelectorAll('.container').forEach(div => div.classList.add('hidden'));
             document.getElementById(viewId).classList.remove('hidden');
             if(viewId === 'dashboard-view') loadAvailableBooks();
+        }
+
+        async function login() {
+            if(document.getElementById('login-user').value && document.getElementById('login-pass').value) {
+                localStorage.setItem('isLoggedIn', 'true');
+                toggleView('dashboard-view');
+            } else { alert("Please enter credentials."); }
+        }
+
+        function handleLogout() {
+            if (confirm("Are you sure you want to log out?")) {
+                localStorage.removeItem('isLoggedIn');
+                location.reload();
+            }
         }
 
         async function loadAvailableBooks() {
@@ -78,7 +99,20 @@
                 const res = await fetch('http://localhost:3000/api/books');
                 allBooks = await res.json();
                 renderBooks(allBooks);
-            } catch (err) { document.getElementById('book-list').innerHTML = "<p>Database connection error.</p>"; }
+            } catch (err) { document.getElementById('book-list').innerHTML = "<p>Connection error to library database.</p>"; }
+        }
+
+        async function borrowBook(title) {
+            const res = await fetch('http://localhost:3000/api/books/borrow', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ title })
+            });
+            const data = await res.json();
+            if (data.success) {
+                alert("Borrowed: " + title);
+                loadAvailableBooks();
+            } else { alert(data.message); }
         }
 
         function renderBooks(books) {
@@ -86,7 +120,7 @@
             list.innerHTML = books.map(b => `
                 <div class="book-item">
                     <div><strong>${b.title}</strong><br><small>by ${b.author} | Stock: ${b.quantity}</small></div>
-                    <button onclick="alert('Borrowed: ${b.title}')" style="width:auto; margin:0;">Borrow</button>
+                    <button onclick="borrowBook('${b.title}')" style="width:auto; margin:0;">Borrow</button>
                 </div>
             `).join('');
         }
