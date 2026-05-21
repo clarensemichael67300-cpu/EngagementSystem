@@ -2,46 +2,55 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Member Portal</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <style>
         body { font-family: 'Segoe UI', sans-serif; background: #f0f2f5; padding: 40px; }
-        .container { max-width: 600px; margin: auto; background: white; padding: 30px; border-radius: 15px; box-shadow: 0 10px 25px rgba(0,0,0,0.1); }
-        h1 { color: #2c3e50; text-align: center; }
-        .search-bar { width: 100%; padding: 12px; margin-bottom: 20px; border: 1px solid #ddd; border-radius: 8px; box-sizing: border-box; }
-        .book-list { list-style: none; padding: 0; }
-        .book-item { padding: 15px; border-bottom: 1px solid #eee; display: flex; justify-content: space-between; align-items: center; }
-        .status-pill { padding: 5px 12px; border-radius: 20px; font-size: 0.85em; font-weight: bold; }
-        .available { background: #d4edda; color: #155724; }
-        .borrowed { background: #f8d7da; color: #721c24; }
+        .container { max-width: 500px; margin: auto; background: white; padding: 30px; border-radius: 15px; box-shadow: 0 10px 25px rgba(0,0,0,0.1); text-align: center; }
+        .hidden { display: none; }
+        input { width: 100%; padding: 12px; margin: 10px 0; border: 1px solid #ddd; border-radius: 8px; box-sizing: border-box; }
+        button { width: 100%; padding: 12px; background: #3498db; color: white; border: none; border-radius: 8px; cursor: pointer; }
     </style>
 </head>
 <body>
-    <div class="container">
-        <h1><i class="fas fa-book-reader"></i> Member Portal</h1>
-        <input type="text" id="search" class="search-bar" placeholder="🔍 Search for a book..." onkeyup="render()">
-        <ul id="book-list" class="book-list"></ul>
+
+    <div id="login-screen" class="container">
+        <h1><i class="fas fa-lock"></i> Member Login</h1>
+        <input type="text" id="username" placeholder="Enter Member ID">
+        <button onclick="login()">Enter Portal</button>
     </div>
+
+    <div id="dashboard" class="container hidden">
+        <h1><i class="fas fa-book-reader"></i> Welcome, <span id="user-display"></span></h1>
+        <input type="text" id="search" placeholder="🔍 Search books..." onkeyup="render()">
+        <ul id="book-list" style="list-style:none; padding:0;"></ul>
+    </div>
+
     <script>
         let allBooks = [];
+        
+        function login() {
+            const user = document.getElementById('username').value;
+            if(user) {
+                document.getElementById('user-display').innerText = user;
+                document.getElementById('login-screen').classList.add('hidden');
+                document.getElementById('dashboard').classList.remove('hidden');
+                fetchBooks();
+            }
+        }
+
         async function fetchBooks() {
             const res = await fetch('http://localhost:3000/api/books');
             allBooks = await res.json();
             render();
         }
+
         function render() {
             const query = document.getElementById('search').value.toLowerCase();
             const list = document.getElementById('book-list');
             list.innerHTML = allBooks
                 .filter(b => b.title.toLowerCase().includes(query))
-                .map(b => `
-                    <li class="book-item">
-                        <span><i class="fas fa-book"></i> ${b.title}</span>
-                        <span class="status-pill ${b.status.toLowerCase()}">${b.status}</span>
-                    </li>
-                `).join('');
+                .map(b => `<li style="padding:10px; border-bottom:1px solid #eee;">${b.title} - <b>${b.status}</b></li>`).join('');
         }
-        fetchBooks();
     </script>
 </body>
 </html>
