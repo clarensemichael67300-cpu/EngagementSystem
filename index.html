@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <style>
+        body { font-family: 'Segoe UI', sans-serif; background: #2c3e50; color: white; text-align: center; }
+        .card { background: #34495e; padding: 20px; border-radius: 10px; width: 300px; margin: 20px auto; }
+        button { background: #27ae60; color: white; border: none; padding: 10px 20px; cursor: pointer; border-radius: 5px; }
+    </style>
+</head>
+<body>
+    <h1>Library Dashboard</h1>
+    <div id="dashboard" class="card">
+        <h3>Book Inventory</h3>
+        <button onclick="loadInventory()">Refresh Inventory</button>
+        <ul id="list"></ul>
+    </div>
+
+    <script>
+        async function loadInventory() {
+            const res = await fetch('http://localhost:3000/api/books');
+            const books = await res.json();
+            const list = document.getElementById('list');
+            list.innerHTML = books.map(b => `<li>${b.title} - ${b.status}</li>`).join('');
+        }
+    </script>
+</body>
+</html>
