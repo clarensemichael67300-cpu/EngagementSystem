@@ -2,127 +2,105 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Member Portal</title>
+    <title>Engagement System | Portal</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <style>
-        body { font-family: 'Segoe UI', sans-serif; background: #f0f2f5; padding: 40px; }
-        .container { max-width: 600px; margin: auto; background: white; padding: 30px; border-radius: 15px; box-shadow: 0 10px 25px rgba(0,0,0,0.1); position: relative; }
-        .hidden { display: none; }
-        h1 { color: #2c3e50; text-align: center; }
+        body { font-family: 'Segoe UI', sans-serif; background: #f0f2f5; display: flex; justify-content: center; align-items: center; min-height: 100vh; margin: 0; }
+        .container { width: 100%; max-width: 500px; background: white; padding: 30px; border-radius: 15px; box-shadow: 0 10px 25px rgba(0,0,0,0.1); position: relative; }
+        h1 { color: #2c3e50; text-align: center; font-size: 22px; margin-bottom: 20px; }
         input, select { width: 100%; padding: 12px; margin: 8px 0; border: 1px solid #ddd; border-radius: 8px; box-sizing: border-box; }
-        button { width: 100%; padding: 12px; background: #3498db; color: white; border: none; border-radius: 8px; cursor: pointer; margin-top: 10px; }
-        .link { color: #3498db; cursor: pointer; text-align: center; display: block; margin-top: 15px; font-size: 0.9em; }
-        .badge { padding: 5px 10px; border-radius: 5px; color: white; font-size: 0.85em; }
+        button { width: 100%; padding: 12px; background: #3498db; color: white; border: none; border-radius: 8px; cursor: pointer; font-weight: bold; margin-top: 15px; }
+        button:hover { background: #2980b9; }
+        
+        .hidden { display: none; }
+        .link-text { text-align: center; margin-top: 15px; font-size: 14px; color: #7f8c8d; }
+        .link-text a { color: #3498db; text-decoration: none; cursor: pointer; font-weight: bold; }
+        
+        /* Dashboard Styling */
+        .book-item { padding: 15px; border-bottom: 1px solid #eee; display: flex; justify-content: space-between; align-items: center; }
+        .search-bar { border: 2px solid #3498db; }
+        .nav-icons { position: absolute; top: 20px; right: 20px; display: flex; gap: 15px; }
     </style>
 </head>
 <body>
 
-    <div id="login-screen" class="container">
-        <h1><i class="fas fa-lock"></i> Login</h1>
-        <input type="text" id="l-user" placeholder="Username">
-        <input type="password" id="l-pass" placeholder="Password">
-        <button onclick="login()">Enter Portal</button>
-        <span class="link" onclick="toggleViews()">Don't have an account? Sign Up</span>
-    </div>
-
-    <div id="signup-screen" class="container hidden">
-        <h1><i class="fas fa-user-plus"></i> Create Account</h1>
-        <input type="text" id="s-name" placeholder="Full Name">
-        <input type="number" id="s-age" placeholder="Age">
-        <input type="text" id="s-id" placeholder="ID Number">
-        
-        <select id="s-course">
-            <option value="" disabled selected>Select your Course</option>
-            <option value="BSIT (PROGRAMMING)">BSIT (PROGRAMMING)</option>
-            <option value="BSINDU (ELECTRICAL)">BSINDU (ELECTRICAL)</option>
-            <option value="BSINDU (AUTOMOTIVE)">BSINDU (AUTOMOTIVE)</option>
-            <option value="BSINDU (ELECTRONICS)">BSINDU (ELECTRONICS)</option>
-            <option value="BSMA">BSMA</option>
-            <option value="BSA">BSA</option>
-            <option value="BTLED">BTLED</option>
-            <option value="BSED">BSED</option>
-        </select>
-
-        <select id="s-year">
-            <option value="" disabled selected>Select your Year Level</option>
-            <option value="1st">1st Year</option>
-            <option value="2nd">2nd Year</option>
-            <option value="3rd">3rd Year</option>
-            <option value="4th">4th Year</option>
-        </select>
-
-        <input type="password" id="s-pass" placeholder="Password">
-        <button onclick="signUp()">Register</button>
-        <span class="link" onclick="toggleViews()">Already have an account? Login</span>
-    </div>
-
-    <div id="dashboard" class="container hidden">
-        <div style="position: absolute; top: 20px; right: 20px;">
-            <button onclick="location.reload()" style="background:transparent; color:#e74c3c; border:1px solid #e74c3c; padding: 5px 10px;">
-                <i class="fas fa-sign-out-alt"></i> Logout
-            </button>
+    <div id="login-view" class="container">
+        <h1>Engagement Portal</h1>
+        <input type="text" placeholder="Username">
+        <input type="password" placeholder="Password">
+        <button onclick="toggleView('dashboard-view')">Login</button>
+        <div class="link-text">
+            Don't have an account? <a onclick="toggleView('signup-view')">Sign Up</a>
         </div>
+    </div>
 
-        <h1><i class="fas fa-book-reader"></i> Available Library</h1>
-        <p>Welcome, <span id="user-display" style="font-weight:bold;"></span>!</p>
-        <input type="text" id="search" placeholder="🔍 Search books..." onkeyup="filterBooks()">
-        <ul id="book-list" style="list-style:none; padding:0; margin-top: 20px;"></ul>
+    <div id="signup-view" class="container hidden">
+        <h1>Create Account</h1>
+        <input type="text" placeholder="Full Name">
+        <input type="text" placeholder="ID Number">
+        <select><option disabled selected>Select Course</option><option>BSIT (PROGRAMMING)</option><option>BSINDU (ELECTRICAL)</option><option>BSINDU (AUTOMOTIVE)</option><option>BSINDU (ELECTRONICS)</option><option>BTLED</option><option>BSED</option><option>BSMA</option><option>BSA</option></select>
+        <select><option disabled selected>Year Level</option><option>1st Year</option><option>2nd Year</option><option>3rd Year</option><option>4th Year</option></select>
+        <select><option disabled selected>Section</option><option>Section A</option><option>Section B</option><option>Section C</option><option>Section D</option><option>Section E</option></select>
+        <button onclick="alert('Registered!'); toggleView('login-view');">Register Now</button>
+        <div class="link-text"><a onclick="toggleView('login-view')">Back to Login</a></div>
+    </div>
+
+    <div id="dashboard-view" class="container hidden" style="max-width: 700px;">
+        <div class="nav-icons">
+            <i class="fas fa-cog" style="cursor: pointer; color: #3498db; font-size: 20px;" onclick="toggleView('settings-view')" title="Account Settings"></i>
+            <i class="fas fa-sign-out-alt" style="cursor: pointer; color: #e74c3c; font-size: 20px;" onclick="location.reload()" title="Logout"></i>
+        </div>
+        <h1>Library Catalog</h1>
+        <input type="text" id="search-bar" class="search-bar" placeholder="Search by title or author..." onkeyup="filterBooks()">
+        <div id="book-list" style="margin-top: 20px;"></div>
+    </div>
+
+    <div id="settings-view" class="container hidden">
+        <h1>Account Settings</h1>
+        <input type="text" id="edit-name" placeholder="New Full Name">
+        <input type="text" id="edit-id" placeholder="New ID Number">
+        <input type="password" id="confirm-pass" placeholder="Confirm Password">
+        <button onclick="saveSettings()">Save Changes</button>
+        <button style="background:#7f8c8d;" onclick="toggleView('dashboard-view')">Back</button>
     </div>
 
     <script>
-        function toggleViews() {
-            document.getElementById('login-screen').classList.toggle('hidden');
-            document.getElementById('signup-screen').classList.toggle('hidden');
+        let allBooks = [];
+
+        function toggleView(viewId) {
+            document.querySelectorAll('.container').forEach(div => div.classList.add('hidden'));
+            document.getElementById(viewId).classList.remove('hidden');
+            if(viewId === 'dashboard-view') loadAvailableBooks();
         }
 
-        function login() {
-            const user = document.getElementById('l-user').value;
-            if(user) {
-                document.getElementById('user-display').innerText = user;
-                document.getElementById('login-screen').classList.add('hidden');
-                document.getElementById('dashboard').classList.remove('hidden');
-                loadBooks();
-            }
+        async function loadAvailableBooks() {
+            try {
+                const res = await fetch('http://localhost:3000/api/books');
+                allBooks = await res.json();
+                renderBooks(allBooks);
+            } catch (err) { document.getElementById('book-list').innerHTML = "<p>Database connection error.</p>"; }
         }
 
-        async function loadBooks() {
-            const res = await fetch('http://localhost:3000/api/books');
-            const books = await res.json();
+        function renderBooks(books) {
             const list = document.getElementById('book-list');
             list.innerHTML = books.map(b => `
-                <li style="padding:15px; border-bottom:1px solid #eee; display:flex; justify-content:space-between; align-items:center;">
-                    <span><i class="fas fa-book"></i> ${b.title}</span>
-                    ${b.status === 'Available' ? 
-                        `<button onclick="borrowBook(${b.id})" style="width:auto; padding:5px 15px; background:#27ae60;">Borrow</button>` : 
-                        `<span class="badge" style="background:#c0392b;">Borrowed</span>`
-                    }
-                </li>`).join('');
-        }
-
-        async function borrowBook(id) {
-            const res = await fetch(`http://localhost:3000/api/borrow/${id}`, { method: 'POST' });
-            const data = await res.json();
-            if(data.success) {
-                alert("Book successfully borrowed!");
-                loadBooks();
-            } else {
-                alert("Error: " + data.message);
-            }
+                <div class="book-item">
+                    <div><strong>${b.title}</strong><br><small>by ${b.author} | Stock: ${b.quantity}</small></div>
+                    <button onclick="alert('Borrowed: ${b.title}')" style="width:auto; margin:0;">Borrow</button>
+                </div>
+            `).join('');
         }
 
         function filterBooks() {
-            const query = document.getElementById('search').value.toLowerCase();
-            document.querySelectorAll('#book-list li').forEach(item => {
-                item.style.display = item.innerText.toLowerCase().includes(query) ? 'flex' : 'none';
-            });
+            const query = document.getElementById('search-bar').value.toLowerCase();
+            renderBooks(allBooks.filter(b => b.title.toLowerCase().includes(query) || b.author.toLowerCase().includes(query)));
         }
 
-        function signUp() {
-            const name = document.getElementById('s-name').value;
-            if(name) {
-                alert("Registration successful for " + name + "!");
-                toggleViews();
-            }
+        function saveSettings() {
+            if (document.getElementById('confirm-pass').value === "admin123") {
+                alert("Profile updated successfully!");
+                toggleView('dashboard-view');
+            } else { alert("Incorrect password."); }
         }
     </script>
 </body>
