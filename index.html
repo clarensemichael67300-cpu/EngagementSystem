@@ -6,7 +6,7 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <style>
         body { font-family: 'Segoe UI', sans-serif; background: #f0f2f5; padding: 40px; }
-        .container { max-width: 600px; margin: auto; background: white; padding: 30px; border-radius: 15px; box-shadow: 0 10px 25px rgba(0,0,0,0.1); }
+        .container { max-width: 600px; margin: auto; background: white; padding: 30px; border-radius: 15px; box-shadow: 0 10px 25px rgba(0,0,0,0.1); position: relative; }
         .hidden { display: none; }
         h1 { color: #2c3e50; text-align: center; }
         input, select { width: 100%; padding: 12px; margin: 8px 0; border: 1px solid #ddd; border-radius: 8px; box-sizing: border-box; }
@@ -57,11 +57,16 @@
     </div>
 
     <div id="dashboard" class="container hidden">
+        <div style="position: absolute; top: 20px; right: 20px;">
+            <button onclick="location.reload()" style="background:transparent; color:#e74c3c; border:1px solid #e74c3c; padding: 5px 10px;">
+                <i class="fas fa-sign-out-alt"></i> Logout
+            </button>
+        </div>
+
         <h1><i class="fas fa-book-reader"></i> Available Library</h1>
-        <p>Welcome, <span id="user-display"></span>!</p>
+        <p>Welcome, <span id="user-display" style="font-weight:bold;"></span>!</p>
         <input type="text" id="search" placeholder="🔍 Search books..." onkeyup="filterBooks()">
         <ul id="book-list" style="list-style:none; padding:0; margin-top: 20px;"></ul>
-        <button onclick="location.reload()" style="background:#e74c3c;">Log Out</button>
     </div>
 
     <script>
@@ -85,12 +90,18 @@
             const books = await res.json();
             const list = document.getElementById('book-list');
             list.innerHTML = books.map(b => `
-                <li style="padding:15px; border-bottom:1px solid #eee; display:flex; justify-content:space-between;">
+                <li style="padding:15px; border-bottom:1px solid #eee; display:flex; justify-content:space-between; align-items:center;">
                     <span><i class="fas fa-book"></i> ${b.title}</span>
-                    <span class="badge" style="background:${b.status === 'Available' ? '#27ae60' : '#c0392b'};">
-                        ${b.status}
-                    </span>
+                    ${b.status === 'Available' ? 
+                        `<button onclick="borrowBook(${b.id})" style="width:auto; padding:5px 15px; background:#27ae60;">Borrow</button>` : 
+                        `<span class="badge" style="background:#c0392b;">Borrowed</span>`
+                    }
                 </li>`).join('');
+        }
+
+        function borrowBook(id) {
+            alert("Book ID " + id + " has been reserved!");
+            loadBooks();
         }
 
         function filterBooks() {
@@ -103,7 +114,7 @@
         function signUp() {
             const name = document.getElementById('s-name').value;
             if(name) {
-                alert("Account created for " + name + "!");
+                alert("Account successfully registered for " + name + "!");
                 toggleViews();
             }
         }
