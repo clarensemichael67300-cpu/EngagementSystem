@@ -6,12 +6,13 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <style>
         body { font-family: 'Segoe UI', sans-serif; background: #f0f2f5; padding: 40px; }
-        .container { max-width: 400px; margin: auto; background: white; padding: 30px; border-radius: 15px; box-shadow: 0 10px 25px rgba(0,0,0,0.1); }
+        .container { max-width: 600px; margin: auto; background: white; padding: 30px; border-radius: 15px; box-shadow: 0 10px 25px rgba(0,0,0,0.1); }
         .hidden { display: none; }
         h1 { color: #2c3e50; text-align: center; }
         input, select { width: 100%; padding: 12px; margin: 8px 0; border: 1px solid #ddd; border-radius: 8px; box-sizing: border-box; }
         button { width: 100%; padding: 12px; background: #3498db; color: white; border: none; border-radius: 8px; cursor: pointer; margin-top: 10px; }
         .link { color: #3498db; cursor: pointer; text-align: center; display: block; margin-top: 15px; font-size: 0.9em; }
+        .badge { padding: 5px 10px; border-radius: 5px; color: white; font-size: 0.85em; }
     </style>
 </head>
 <body>
@@ -42,22 +43,24 @@
             <option value="BSED">BSED</option>
         </select>
 
-        <select id="s-year" style="width: 100%; padding: 12px; margin: 8px 0; border: 1px solid #ddd; border-radius: 8px; box-sizing: border-box;">
+        <select id="s-year">
             <option value="" disabled selected>Select your Year Level</option>
             <option value="1st">1st Year</option>
             <option value="2nd">2nd Year</option>
             <option value="3rd">3rd Year</option>
             <option value="4th">4th Year</option>
         </select>
-        
+
         <input type="password" id="s-pass" placeholder="Password">
         <button onclick="signUp()">Register</button>
         <span class="link" onclick="toggleViews()">Already have an account? Login</span>
     </div>
 
     <div id="dashboard" class="container hidden">
-        <h1><i class="fas fa-book-reader"></i> Welcome</h1>
-        <p id="welcome-msg"></p>
+        <h1><i class="fas fa-book-reader"></i> Available Library</h1>
+        <p>Welcome, <span id="user-display"></span>!</p>
+        <input type="text" id="search" placeholder="🔍 Search books..." onkeyup="filterBooks()">
+        <ul id="book-list" style="list-style:none; padding:0; margin-top: 20px;"></ul>
         <button onclick="location.reload()" style="background:#e74c3c;">Log Out</button>
     </div>
 
@@ -70,23 +73,38 @@
         function login() {
             const user = document.getElementById('l-user').value;
             if(user) {
-                document.getElementById('welcome-msg').innerText = "Logged in as: " + user;
+                document.getElementById('user-display').innerText = user;
                 document.getElementById('login-screen').classList.add('hidden');
                 document.getElementById('dashboard').classList.remove('hidden');
+                loadBooks();
             }
         }
 
+        async function loadBooks() {
+            const res = await fetch('http://localhost:3000/api/books');
+            const books = await res.json();
+            const list = document.getElementById('book-list');
+            list.innerHTML = books.map(b => `
+                <li style="padding:15px; border-bottom:1px solid #eee; display:flex; justify-content:space-between;">
+                    <span><i class="fas fa-book"></i> ${b.title}</span>
+                    <span class="badge" style="background:${b.status === 'Available' ? '#27ae60' : '#c0392b'};">
+                        ${b.status}
+                    </span>
+                </li>`).join('');
+        }
+
+        function filterBooks() {
+            const query = document.getElementById('search').value.toLowerCase();
+            document.querySelectorAll('#book-list li').forEach(item => {
+                item.style.display = item.innerText.toLowerCase().includes(query) ? 'flex' : 'none';
+            });
+        }
+
         function signUp() {
-            const userData = {
-                name: document.getElementById('s-name').value,
-                id: document.getElementById('s-id').value,
-                course: document.getElementById('s-course').value
-            };
-            if(userData.name && userData.id && userData.course) {
-                alert("Account successfully registered for " + userData.name + "!");
+            const name = document.getElementById('s-name').value;
+            if(name) {
+                alert("Account created for " + name + "!");
                 toggleViews();
-            } else {
-                alert("Please fill in all required fields, including your course.");
             }
         }
     </script>
