@@ -64,78 +64,273 @@
     </div>
 
     <script>
-        let allBooks = [];
 
+        let allBooks = [];
+    
+        // =========================================
+        // CHECK LOGIN
+        // =========================================
+    
         (function checkLogin() {
+    
             if (localStorage.getItem('isLoggedIn') === 'true') {
-                document.getElementById('login-view').classList.add('hidden');
-                document.getElementById('dashboard-view').classList.remove('hidden');
+    
+                document.getElementById('login-view')
+                    .classList.add('hidden');
+    
+                document.getElementById('dashboard-view')
+                    .classList.remove('hidden');
+    
                 loadAvailableBooks();
             }
+    
         })();
-
+    
+        // =========================================
+        // TOGGLE VIEW
+        // =========================================
+    
         function toggleView(viewId) {
-            document.querySelectorAll('.container').forEach(div => div.classList.add('hidden'));
-            document.getElementById(viewId).classList.remove('hidden');
-            if(viewId === 'dashboard-view') loadAvailableBooks();
+    
+            document.querySelectorAll('.container')
+                .forEach(div => div.classList.add('hidden'));
+    
+            document.getElementById(viewId)
+                .classList.remove('hidden');
+    
+            if (viewId === 'dashboard-view') {
+    
+                loadAvailableBooks();
+            }
         }
-
+    
+        // =========================================
+        // LOGIN
+        // =========================================
+    
         async function login() {
-            if(document.getElementById('login-user').value && document.getElementById('login-pass').value) {
-                localStorage.setItem('isLoggedIn', 'true');
+    
+            const username =
+                document.getElementById('login-user').value;
+    
+            const password =
+                document.getElementById('login-pass').value;
+    
+            if (username && password) {
+    
+                // SAVE USERNAME
+                localStorage.setItem(
+                    'loggedInUser',
+                    username
+                );
+    
+                // SAVE LOGIN STATUS
+                localStorage.setItem(
+                    'isLoggedIn',
+                    'true'
+                );
+    
+                console.log(
+                    "LOGGED IN USER:",
+                    username
+                );
+    
                 toggleView('dashboard-view');
-            } else { alert("Please enter credentials."); }
+    
+            } else {
+    
+                alert("Please enter credentials.");
+            }
         }
-
+    
+        // =========================================
+        // LOGOUT
+        // =========================================
+    
         function handleLogout() {
+    
             if (confirm("Are you sure you want to log out?")) {
+    
                 localStorage.removeItem('isLoggedIn');
+    
+                localStorage.removeItem('loggedInUser');
+    
                 location.reload();
             }
         }
-
+    
+        // =========================================
+        // LOAD BOOKS
+        // =========================================
+    
         async function loadAvailableBooks() {
+    
             try {
-                const res = await fetch('http://localhost:3000/api/books');
+    
+                const res =
+                    await fetch('http://localhost:3000/api/books');
+    
                 allBooks = await res.json();
+    
+                console.log("BOOKS:", allBooks);
+    
                 renderBooks(allBooks);
-            } catch (err) { document.getElementById('book-list').innerHTML = "<p>Connection error to library database.</p>"; }
+    
+            } catch (err) {
+    
+                console.error(err);
+    
+                document.getElementById('book-list').innerHTML =
+                    "<p>Connection error to library database.</p>";
+            }
         }
-
+    
+        // =========================================
+        // BORROW BOOK
+        // =========================================
+    
         async function borrowBook(title) {
-            const res = await fetch('http://localhost:3000/api/books/borrow', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ title })
-            });
-            const data = await res.json();
-            if (data.success) {
-                alert("Borrowed: " + title);
-                loadAvailableBooks();
-            } else { alert(data.message); }
+    
+            // GET SAVED USERNAME
+            const username =
+                localStorage.getItem('loggedInUser');
+    
+            console.log("USERNAME:", username);
+    
+            console.log("BOOK TITLE:", title);
+    
+            // VALIDATION
+            if (!username || !title) {
+    
+                alert("Missing username or book title");
+    
+                return;
+            }
+    
+            try {
+    
+                const res = await fetch(
+                    'http://localhost:3000/api/borrow',
+                    {
+                        method: 'POST',
+    
+                        headers: {
+                            'Content-Type': 'application/json'
+                        },
+    
+                        body: JSON.stringify({
+    
+                            username: username,
+    
+                            bookTitle: title
+                        })
+                    }
+                );
+    
+                const data = await res.json();
+    
+                console.log("SERVER RESPONSE:", data);
+    
+                if (data.success) {
+    
+                    alert("Borrowed: " + title);
+    
+                    loadAvailableBooks();
+    
+                } else {
+    
+                    alert(data.message);
+                }
+    
+            } catch (err) {
+    
+                console.error(err);
+    
+                alert("Connection error.");
+            }
         }
-
+    
+        // =========================================
+        // RENDER BOOKS
+        // =========================================
+    
         function renderBooks(books) {
-            const list = document.getElementById('book-list');
+    
+            const list =
+                document.getElementById('book-list');
+    
             list.innerHTML = books.map(b => `
+    
                 <div class="book-item">
-                    <div><strong>${b.title}</strong><br><small>by ${b.author} | Stock: ${b.quantity}</small></div>
-                    <button onclick="borrowBook('${b.title}')" style="width:auto; margin:0;">Borrow</button>
+    
+                    <div>
+    
+                        <strong>${b.title}</strong><br>
+    
+                        <small>
+                            Author: ${b.author}
+                            |
+                            Stock: ${b.quantity}
+                        </small>
+    
+                    </div>
+    
+                    <button
+                        onclick="borrowBook('${b.title}')"
+                        style="width:auto; margin:0;"
+                    >
+                        Borrow
+                    </button>
+    
                 </div>
+    
             `).join('');
         }
-
+    
+        // =========================================
+        // SEARCH FILTER
+        // =========================================
+    
         function filterBooks() {
-            const query = document.getElementById('search-bar').value.toLowerCase();
-            renderBooks(allBooks.filter(b => b.title.toLowerCase().includes(query) || b.author.toLowerCase().includes(query)));
+    
+            const query =
+                document.getElementById('search-bar')
+                .value
+                .toLowerCase();
+    
+            const filteredBooks = allBooks.filter(b =>
+    
+                b.title.toLowerCase().includes(query)
+    
+                ||
+    
+                b.author.toLowerCase().includes(query)
+            );
+    
+            renderBooks(filteredBooks);
         }
-
+    
+        // =========================================
+        // SAVE SETTINGS
+        // =========================================
+    
         function saveSettings() {
-            if (document.getElementById('confirm-pass').value === "admin123") {
+    
+            if (
+                document.getElementById('confirm-pass').value
+                === "admin123"
+            ) {
+    
                 alert("Profile updated successfully!");
+    
                 toggleView('dashboard-view');
-            } else { alert("Incorrect password."); }
+    
+            } else {
+    
+                alert("Incorrect password.");
+            }
         }
+    
     </script>
 </body>
 </html>
