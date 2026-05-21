@@ -99,9 +99,15 @@
                 </li>`).join('');
         }
 
-        function borrowBook(id) {
-            alert("Book ID " + id + " has been reserved!");
-            loadBooks();
+        async function borrowBook(id) {
+            const res = await fetch(`http://localhost:3000/api/borrow/${id}`, { method: 'POST' });
+            const data = await res.json();
+            if(data.success) {
+                alert("Book successfully borrowed!");
+                loadBooks();
+            } else {
+                alert("Error: " + data.message);
+            }
         }
 
         function filterBooks() {
@@ -114,7 +120,7 @@
         function signUp() {
             const name = document.getElementById('s-name').value;
             if(name) {
-                alert("Account successfully registered for " + name + "!");
+                alert("Registration successful for " + name + "!");
                 toggleViews();
             }
         }
