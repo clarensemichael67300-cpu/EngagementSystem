@@ -2,25 +2,25 @@
 <html>
 <head>
     <style>
-        body { font-family: 'Segoe UI', sans-serif; background: #2c3e50; color: white; text-align: center; }
-        .card { background: #34495e; padding: 20px; border-radius: 10px; width: 300px; margin: 20px auto; }
-        button { background: #27ae60; color: white; border: none; padding: 10px 20px; cursor: pointer; border-radius: 5px; }
+        /* Light, Clean User Theme */
+        body { font-family: 'Segoe UI', sans-serif; background: #eef2f3; padding: 50px; }
+        .card { background: white; padding: 40px; border-radius: 12px; box-shadow: 0 10px 20px rgba(0,0,0,0.1); max-width: 500px; margin: auto; }
+        h1 { color: #2c3e50; }
+        button { background: #3498db; color: white; padding: 15px 30px; border: none; border-radius: 6px; cursor: pointer; }
     </style>
 </head>
 <body>
-    <h1>Library Dashboard</h1>
-    <div id="dashboard" class="card">
-        <h3>Book Inventory</h3>
-        <button onclick="loadInventory()">Refresh Inventory</button>
-        <ul id="list"></ul>
+    <div class="card">
+        <h1>Member Portal</h1>
+        <button onclick="check()">Refresh Library Data</button>
+        <div id="output" style="margin-top:25px;"></div>
     </div>
-
     <script>
-        async function loadInventory() {
+        async function check() {
             const res = await fetch('http://localhost:3000/api/books');
-            const books = await res.json();
-            const list = document.getElementById('list');
-            list.innerHTML = books.map(b => `<li>${b.title} - ${b.status}</li>`).join('');
+            const data = await res.json();
+            document.getElementById('output').innerHTML = data.map(b => 
+                `<div style="padding:10px; border-bottom:1px solid #eee;">${b.title} - <b>${b.status}</b></div>`).join('');
         }
     </script>
 </body>
