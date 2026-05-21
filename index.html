@@ -9,7 +9,7 @@
         .container { max-width: 400px; margin: auto; background: white; padding: 30px; border-radius: 15px; box-shadow: 0 10px 25px rgba(0,0,0,0.1); }
         .hidden { display: none; }
         h1 { color: #2c3e50; text-align: center; }
-        input { width: 100%; padding: 12px; margin: 8px 0; border: 1px solid #ddd; border-radius: 8px; box-sizing: border-box; }
+        input, select { width: 100%; padding: 12px; margin: 8px 0; border: 1px solid #ddd; border-radius: 8px; box-sizing: border-box; }
         button { width: 100%; padding: 12px; background: #3498db; color: white; border: none; border-radius: 8px; cursor: pointer; margin-top: 10px; }
         .link { color: #3498db; cursor: pointer; text-align: center; display: block; margin-top: 15px; font-size: 0.9em; }
     </style>
@@ -29,7 +29,19 @@
         <input type="text" id="s-name" placeholder="Full Name">
         <input type="number" id="s-age" placeholder="Age">
         <input type="text" id="s-id" placeholder="ID Number">
-        <input type="text" id="s-course" placeholder="Course">
+        
+        <select id="s-course">
+            <option value="" disabled selected>Select your Course</option>
+            <option value="BSIT (PROGRAMMING)">BSIT (PROGRAMMING)</option>
+            <option value="BSINDU (ELECTRICAL)">BSINDU (ELECTRICAL)</option>
+            <option value="BSINDU (AUTOMOTIVE)">BSINDU (AUTOMOTIVE)</option>
+            <option value="BSINDU (ELECTRONICS)">BSINDU (ELECTRONICS)</option>
+            <option value="BSMA">BSMA</option>
+            <option value="BSA">BSA</option>
+            <option value="BTLED">BTLED</option>
+            <option value="BSED">BSED</option>
+        </select>
+
         <input type="text" id="s-year" placeholder="Year Level">
         <input type="password" id="s-pass" placeholder="Password">
         <button onclick="signUp()">Register</button>
@@ -60,16 +72,14 @@
         function signUp() {
             const userData = {
                 name: document.getElementById('s-name').value,
-                age: document.getElementById('s-age').value,
                 id: document.getElementById('s-id').value,
-                course: document.getElementById('s-course').value,
-                year: document.getElementById('s-year').value
+                course: document.getElementById('s-course').value
             };
-            if(userData.name && userData.id) {
-                alert("Account created for " + userData.name + "!");
+            if(userData.name && userData.id && userData.course) {
+                alert("Account successfully registered for " + userData.name + "!");
                 toggleViews();
             } else {
-                alert("Please fill in required fields.");
+                alert("Please fill in all required fields, including your course.");
             }
         }
     </script>
